@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 public record AccountDto(
         String id,
-        BigDecimal balance,
-        boolean isActive
+        BigDecimal balance
 ) {
 }

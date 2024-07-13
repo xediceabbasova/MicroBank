@@ -8,8 +8,6 @@ import com.company.userservice.exception.UserIsNotActiveException;
 import com.company.userservice.exception.UserNotFoundException;
 import com.company.userservice.model.User;
 import com.company.userservice.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +15,6 @@ import java.util.List;
 
 @Service
 public class UserService {
-
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final UserDtoConverter converter;
@@ -43,12 +39,7 @@ public class UserService {
     }
 
     public UserDto updateUser(final String userId, final UpdateUserRequest request) {
-        User user = findUserById(userId);
-
-        if (!user.isActive()) {
-            logger.warn("The user wanted update is not active! user id:{}", userId);
-            throw new UserIsNotActiveException();
-        }
+        User user = findActiveUserById(userId);
 
         User updatedUser = new User(
                 user.getId(),
@@ -66,7 +57,7 @@ public class UserService {
     }
 
     public UserDto getUserById(final String id) {
-        return converter.convert(findUserById(id));
+        return converter.convert(findActiveUserById(id));
     }
 
     public void activateUser(final String id) {
@@ -89,6 +80,14 @@ public class UserService {
                 isActive
         );
         userRepository.save(updatedUser);
+    }
+
+    private User findActiveUserById(final String id) {
+        User user = findUserById(id);
+        if (!user.isActive()) {
+            throw new UserIsNotActiveException();
+        }
+        return user;
     }
 
     private User findUserById(final String id) {

@@ -1,6 +1,7 @@
 package com.company.accountservice.client;
 
 import com.company.accountservice.exception.ExceptionMessage;
+import com.company.accountservice.exception.UserIsNotActiveException;
 import com.company.accountservice.exception.UserNotFoundException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
@@ -17,22 +18,23 @@ public class RetrieveMessageErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {
-        ExceptionMessage message = null;
+        ExceptionMessage message;
         try (InputStream body = response.body().asInputStream()) {
-            message = new ExceptionMessage((String) response.headers().get("date").toArray()[0],
+            message = new ExceptionMessage(
+                    (String) response.headers().get("date").toArray()[0],
                     response.status(),
                     HttpStatus.resolve(response.status()).getReasonPhrase(),
                     IOUtils.toString(body, StandardCharsets.UTF_8),
-                    response.request().url());
+                    response.request().url()
+            );
 
         } catch (IOException exception) {
             return new Exception(exception.getMessage());
         }
-        switch (response.status()) {
-            case 404:
-                throw new UserNotFoundException(message);
-            default:
-                return errorDecoder.decode(methodKey, response);
-        }
+        return switch (response.status()) {
+            case 404 -> throw new UserNotFoundException(message);
+            case 400 -> throw new UserIsNotActiveException(message);
+            default -> errorDecoder.decode(methodKey, response);
+        };
     }
 }

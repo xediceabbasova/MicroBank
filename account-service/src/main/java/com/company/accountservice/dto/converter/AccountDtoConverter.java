@@ -10,8 +10,7 @@ public class AccountDtoConverter {
     public AccountDto convert(Account from) {
         return new AccountDto(
                 from.getId(),
-                from.getBalance(),
-                from.isActive()
+                from.getBalance()
         );
     }
 }

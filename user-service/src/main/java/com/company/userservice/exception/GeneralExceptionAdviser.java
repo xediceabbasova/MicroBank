@@ -13,8 +13,9 @@ public class GeneralExceptionAdviser {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(UserIsNotActiveException.class)
     public ResponseEntity<?> userIsNotActiveExceptionHandler(UserIsNotActiveException exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
 }
