@@ -26,7 +26,6 @@ public class TransactionService {
     private final KafkaProducer kafkaProducer;
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
-
     public TransactionService(TransactionRepository repository, TransactionDtoConverter converter, AccountServiceClient client, KafkaProducer kafkaProducer) {
         this.repository = repository;
         this.converter = converter;
@@ -48,8 +47,8 @@ public class TransactionService {
         repository.save(transaction);
 
         try {
-            client.withDrawMoney(Objects.requireNonNull(toAccount).id(), request.amount());
-            client.addMoney(Objects.requireNonNull(fromAccount).id(), request.amount());
+            client.withDrawMoney(Objects.requireNonNull(fromAccount).id(), request.amount());
+            client.addMoney(Objects.requireNonNull(toAccount).id(), request.amount());
             transaction.updateStatus(TransactionStatus.CONFIRMED);
         } catch (FeignException e) {
             transaction.updateStatus(TransactionStatus.CANCELLED);

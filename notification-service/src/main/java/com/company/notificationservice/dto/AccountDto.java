@@ -1,4 +1,4 @@
-package com.company.accountservice.dto;
+package com.company.notificationservice.dto;
 
 import java.math.BigDecimal;
 
